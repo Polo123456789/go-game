@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	board "github.com/Polo123456789/go-game/pkg/mines-board"
+	"github.com/Polo123456789/go-game/pkg/mines-board"
 )
 
 type BoardUi struct {
