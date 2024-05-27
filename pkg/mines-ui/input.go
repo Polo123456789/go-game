@@ -1,29 +1,5 @@
 package ui
 
-import (
-	"os"
-	"os/exec"
-)
-
-// {{{ Stdin
-func UnbufferStdin() {
-	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
-	exec.Command("stty", "-F", "/dev/tty", "-echo").Run()
-}
-
-func RestoreStdin() {
-	defer exec.Command("stty", "-F", "/dev/tty", "echo").Run()
-}
-
-func Input() byte {
-	b := [1]byte{}
-	os.Stdin.Read(b[:])
-	return b[0]
-}
-
-// }}}
-
-// {{{ Movement
 type Movement int
 
 const (
@@ -62,5 +38,3 @@ func TranslateInput(input byte) Movement {
 	}
 	return Invalid
 }
-
-// }}}

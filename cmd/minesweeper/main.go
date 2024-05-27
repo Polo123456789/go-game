@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"github.com/Polo123456789/go-game/pkg/input"
 	board "github.com/Polo123456789/go-game/pkg/mines-board"
 	bui "github.com/Polo123456789/go-game/pkg/mines-ui"
 )
@@ -21,8 +23,8 @@ var (
 
 func main() {
 	flag.Parse()
-	bui.UnbufferStdin()
-	defer bui.RestoreStdin()
+	input.UnbufferStdin()
+	defer input.RestoreStdin()
 
 	b := board.NewBoard(*rows, *cols, *mines)
 	ui := bui.NewBoardUi(&b, bui.Cursor{X: 0, Y: 0})
@@ -32,7 +34,7 @@ func main() {
 		ui.Draw()
 		fmt.Println("\nMove with wasd of hjkl, (c)lear, (f)lag, (m)ark,")
 		fmt.Println("\t(r)eset tile state, (q)uit")
-		input := bui.TranslateInput(bui.Input())
+		input := bui.TranslateInput(input.Get())
 
 		var result board.MoveResult
 		switch input {
