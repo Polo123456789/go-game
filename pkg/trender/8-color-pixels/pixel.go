@@ -40,7 +40,7 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 	f := strconv.Itoa(int(30 + p.Foreground))
 	b := strconv.Itoa(int(40 + p.Background))
 	m := strconv.Itoa(int(p.GraphicsMode))
-	return "\x1b[" + m + ";" + f + ";" + b + "m" + string(p.Content)
+	return "\x1b[" + m + ";" + f + ";" + b + "m " + string(p.Content) + " "
 }
 
 func (p *Pixel) SetGraphicsMode(mode trender.GraphicsMode) {
