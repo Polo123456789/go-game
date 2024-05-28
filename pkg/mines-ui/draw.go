@@ -5,19 +5,19 @@ import (
 	"github.com/Polo123456789/go-game/pkg/mines-board"
 )
 
-type BoardUi struct {
+type BoardUI struct {
 	Board  *board.Board
 	Cursor Cursor
 }
 
-func NewBoardUi(board *board.Board, startingPosition Cursor) BoardUi {
-	return BoardUi{
+func NewBoardUI(board *board.Board, startingPosition Cursor) BoardUI {
+	return BoardUI{
 		Board:  board,
 		Cursor: startingPosition,
 	}
 }
 
-func (ui *BoardUi) MakeMoveAtCursor(move board.PlayerMove) board.MoveResult {
+func (ui *BoardUI) MakeMoveAtCursor(move board.PlayerMove) board.MoveResult {
 	return ui.Board.MakeMove(ui.Cursor.X, ui.Cursor.Y, move)
 }
 
@@ -41,7 +41,7 @@ func drawTile(tile board.Tile) {
 	}
 }
 
-func (ui *BoardUi) Draw() {
+func (ui *BoardUI) Draw() {
 	for y := 0; y < ui.Board.Height; y++ {
 		for x := 0; x < ui.Board.Width; x++ {
 			tile := ui.Board.Tiles[x][y]

@@ -20,6 +20,7 @@ type Board struct {
 }
 
 // {{{Constants
+
 type MoveResult int
 
 const (

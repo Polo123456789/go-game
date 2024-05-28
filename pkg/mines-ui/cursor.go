@@ -8,23 +8,27 @@ type Cursor struct {
 	X, Y int
 }
 
-func (ui *BoardUi) MoveCursor(move input.TreeResult) {
+func (ui *BoardUI) MoveCursor(move input.TreeResult, modifier int) {
 	switch move {
 	case MoveUp:
-		if ui.Cursor.Y > 0 {
-			ui.Cursor.Y--
+		ui.Cursor.Y -= modifier
+		if ui.Cursor.Y < 0 {
+			ui.Cursor.Y = 0
 		}
 	case MoveDown:
-		if ui.Cursor.Y < ui.Board.Height-1 {
-			ui.Cursor.Y++
+		ui.Cursor.Y += modifier
+		if ui.Cursor.Y >= ui.Board.Height {
+			ui.Cursor.Y = ui.Board.Height - 1
 		}
 	case MoveLeft:
-		if ui.Cursor.X > 0 {
-			ui.Cursor.X--
+		ui.Cursor.X -= modifier
+		if ui.Cursor.X < 0 {
+			ui.Cursor.X = 0
 		}
 	case MoveRight:
-		if ui.Cursor.X < ui.Board.Width-1 {
-			ui.Cursor.X++
+		ui.Cursor.X += modifier
+		if ui.Cursor.X >= ui.Board.Width {
+			ui.Cursor.X = ui.Board.Width - 1
 		}
 	case MoveAllUp:
 		ui.Cursor.Y = 0
