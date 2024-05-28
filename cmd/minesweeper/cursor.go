@@ -1,4 +1,4 @@
-package ui
+package main
 
 import (
 	"github.com/Polo123456789/go-game/pkg/input"

@@ -5,9 +5,6 @@ import (
 	"fmt"
 
 	"github.com/Polo123456789/go-game/pkg/input"
-
-	board "github.com/Polo123456789/go-game/pkg/mines-board"
-	boardUI "github.com/Polo123456789/go-game/pkg/mines-ui"
 )
 
 const (
@@ -27,12 +24,12 @@ func main() {
 	input.UnbufferStdin()
 	defer input.RestoreStdin()
 
-	b := board.NewBoard(*rows, *cols, *mines)
-	ui := boardUI.NewBoardUI(&b, boardUI.Cursor{X: 0, Y: 0})
-	matchTree := input.NewMatchTree(boardUI.InputTree)
+	b := NewBoard(*rows, *cols, *mines)
+	ui := NewBoardUI(&b, Cursor{X: 0, Y: 0})
+	matchTree := input.NewMatchTree(InputTree)
 
 	for {
-		boardUI.ClearScreen()
+		ClearScreen()
 		ui.Draw()
 		fmt.Println("\nMove with wasd of hjkl, (c)lear, (f)lag, (m)ark,")
 		fmt.Println("\t(r)eset tile state, (q)uit")
@@ -47,30 +44,30 @@ func main() {
 			}
 		}
 
-		var result board.MoveResult
+		var result MoveResult
 		switch {
-		case userInput >= boardUI.MoveUp && userInput <= boardUI.MoveAllRight:
+		case userInput >= MoveUp && userInput <= MoveAllRight:
 			ui.MoveCursor(userInput, modifier)
-			result = board.MoveResultSuccessful
-		case userInput == boardUI.Clear:
-			result = ui.MakeMoveAtCursor(board.PlayerMarkedCleared)
-		case userInput == boardUI.Flag:
-			result = ui.MakeMoveAtCursor(board.PlayerMarkedDoubtful)
-		case userInput == boardUI.Mark:
-			result = ui.MakeMoveAtCursor(board.PlayerMarkedMined)
-		case userInput == boardUI.ClearState:
-			result = ui.MakeMoveAtCursor(board.PlayerClearedState)
-		case userInput == boardUI.Quit:
+			result = MoveResultSuccessful
+		case userInput == Clear:
+			result = ui.MakeMoveAtCursor(PlayerMarkedCleared)
+		case userInput == Flag:
+			result = ui.MakeMoveAtCursor(PlayerMarkedDoubtful)
+		case userInput == Mark:
+			result = ui.MakeMoveAtCursor(PlayerMarkedMined)
+		case userInput == ClearState:
+			result = ui.MakeMoveAtCursor(PlayerClearedState)
+		case userInput == Quit:
 			return
 		}
 
-		if result&board.MoveResultDeath != 0 {
-			boardUI.ClearScreen()
+		if result&MoveResultDeath != 0 {
+			ClearScreen()
 			ui.Draw()
 			fmt.Println("You died!")
 			return
 		} else if b.GameOver() {
-			boardUI.ClearScreen()
+			ClearScreen()
 			ui.Draw()
 			fmt.Println("You won!")
 			return

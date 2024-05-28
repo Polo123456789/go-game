@@ -1,39 +1,38 @@
-package ui
+package main
 
 import (
 	"fmt"
-	"github.com/Polo123456789/go-game/pkg/mines-board"
 )
 
 type BoardUI struct {
-	Board  *board.Board
+	Board  *Board
 	Cursor Cursor
 }
 
-func NewBoardUI(board *board.Board, startingPosition Cursor) BoardUI {
+func NewBoardUI(board *Board, startingPosition Cursor) BoardUI {
 	return BoardUI{
 		Board:  board,
 		Cursor: startingPosition,
 	}
 }
 
-func (ui *BoardUI) MakeMoveAtCursor(move board.PlayerMove) board.MoveResult {
+func (ui *BoardUI) MakeMoveAtCursor(move PlayerMove) MoveResult {
 	return ui.Board.MakeMove(ui.Cursor.X, ui.Cursor.Y, move)
 }
 
-func drawTile(tile board.Tile) {
+func drawTile(tile Tile) {
 	switch tile.PlayerView {
-	case board.UndiscoveredTile:
+	case UndiscoveredTile:
 		fmt.Print(" # ")
-	case board.ClearTile:
-		if tile.Value != board.MinedTile {
+	case ClearTile:
+		if tile.Value != MinedTile {
 			fmt.Printf(" %v ", tile.Value)
 		} else {
 			fmt.Print(" M ")
 		}
-	case board.MarkedMinedTile:
+	case MarkedMinedTile:
 		fmt.Print(" M ")
-	case board.MarkedDoubtfulTile:
+	case MarkedDoubtfulTile:
 		fmt.Print(" ? ")
 	default:
 		// This should never happen
@@ -68,21 +67,21 @@ func cursorGraphicsMode() {
 	fmt.Print("\x1b[5;30;47m")
 }
 
-func tileGraphicsMode(tile board.Tile) {
+func tileGraphicsMode(tile Tile) {
 	switch tile.PlayerView {
-	case board.ClearTile:
-		if tile.Value != board.MinedTile {
+	case ClearTile:
+		if tile.Value != MinedTile {
 			fmt.Print("\x1b[30;107m")
 		} else {
 			fmt.Print("\x1b[30;41m")
 		}
-	case board.MarkedMinedTile:
+	case MarkedMinedTile:
 		fmt.Print("\x1b[48;5;208m")
 		fmt.Print("\x1b[1;30m")
-	case board.MarkedDoubtfulTile:
+	case MarkedDoubtfulTile:
 		fmt.Print("\x1b[48;5;226m")
 		fmt.Print("\x1b[1;30m")
-	case board.UndiscoveredTile:
+	case UndiscoveredTile:
 		fmt.Print("\x1b[48;5;240m")
 	default:
 		// This should never happen
