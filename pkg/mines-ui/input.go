@@ -28,6 +28,7 @@ var InputTree []input.MatchTreeElement = []input.MatchTreeElement{
 	{Value: "d", Result: MoveRight},
 
 	// Vim Movements
+	// hjkl accept a number before them
 	{Value: "k", Result: MoveUp},
 	{Value: "j", Result: MoveDown},
 	{Value: "h", Result: MoveLeft},
@@ -36,6 +37,9 @@ var InputTree []input.MatchTreeElement = []input.MatchTreeElement{
 	{Value: "G", Result: MoveAllDown},
 	{Value: "0", Result: MoveAllLeft},
 	{Value: "$", Result: MoveAllRight},
+	{Value: "ZZ", Result: Quit},
+	{Value: ":q\n", Result: Quit},
+	{Value: ":wq\n", Result: Quit},
 
 	// Other
 	{Value: "c", Result: Clear},

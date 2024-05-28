@@ -16,6 +16,27 @@ confirm:
 no-dirty:
 	git diff --exit-code
 
+# ==================================================================================== #
+# Applications
+# ==================================================================================== #
+
+## run sandbox
+.PHONY: run
+run:
+	go run ./cmd/sandbox
+
+.PHONY: minesweeper
+minesweeper:
+	go build -o /tmp/minesweeper ./cmd/minesweeper
+
+.PHONY: minesweeper/run
+minesweeper/run: minesweeper
+	/tmp/minesweeper
+
+.PHONY: minesweeper/install
+minesweeper/install: minesweeper
+	cp /tmp/minesweeper $(HOME)/.local/bin/minesweeper
+
 
 # ==================================================================================== #
 # QUALITY CONTROL
@@ -44,12 +65,12 @@ audit:
 ## test: run all tests
 .PHONY: test
 test:
-	go test -v -race -buildvcs ./...
+	go test -race -buildvcs ./...
 
 ## test/cover: run all tests and display coverage
 .PHONY: test/cover
 test/cover:
-	go test -v -race -buildvcs -coverprofile=/tmp/coverage.out ./...
+	go test -race -buildvcs -coverprofile=/tmp/coverage.out ./...
 	go tool cover -html=/tmp/coverage.out
 
 # ==================================================================================== #

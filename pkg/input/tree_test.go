@@ -1,18 +1,17 @@
 package input
 
 import (
+	"strconv"
 	"testing"
 )
 
 type TestFunc func(t *testing.T)
 
 func ExpectReset(t *testing.T, tree *MatchTree) {
-	t.Run("Reset", func(t *testing.T) {
-		tree.Reset()
-		if tree.current != tree.root {
-			t.Errorf("expected reset to root")
-		}
-	})
+	tree.Reset()
+	if !tree.IsAtBase() {
+		t.Fatalf("expected reset to root")
+	}
 }
 
 func GenTreeExpectMatch(
@@ -22,15 +21,15 @@ func GenTreeExpectMatch(
 	expected TreeResult,
 ) TestFunc {
 	return func(t *testing.T) {
+		ExpectReset(t, tree)
 		for _, c := range s {
 			if !tree.Match(c) {
-				t.Errorf("expected match for %c", c)
+				t.Fatalf("expected match for %c", c)
 			}
 		}
 		if tree.CurrentResult() != expected {
-			t.Errorf("expected %d, got %d", expected, tree.CurrentResult())
+			t.Fatalf("expected result to be %d, got %d", expected, tree.CurrentResult())
 		}
-		ExpectReset(t, tree)
 	}
 }
 
@@ -40,6 +39,7 @@ func GenTreeDontExpectMatch(
 	s string,
 ) TestFunc {
 	return func(t *testing.T) {
+		ExpectReset(t, tree)
 		matchedAll := true
 		for _, c := range s {
 			if !tree.Match(c) {
@@ -49,13 +49,12 @@ func GenTreeDontExpectMatch(
 		}
 
 		if matchedAll {
-			t.Errorf("expected no match")
+			t.Fatalf("expected no match")
 		}
 
 		if tree.CurrentResult() != NoMatch {
-			t.Errorf("expected %d, got %d", NoMatch, tree.CurrentResult())
+			t.Fatalf("expected result to be %d, got %d", NoMatch, tree.CurrentResult())
 		}
-		ExpectReset(t, tree)
 	}
 }
 
@@ -65,49 +64,46 @@ func TestMatchTree(t *testing.T) {
 		MatchLongerString
 		MatchSimilarString
 		MatchSpecialCharacters
-		DontMatchSingleCharacter
-		DontMatchMidTree
+		MatchNumberFirst
 	)
 
 	const SingleCharacter = "a"
 	const LongerString = "abcdefg"
 	const SimilarString = "abcfeg"
 	const WithSpecialCharacters = "!#$((#*@))"
+	const NumberFirst = "0abc"
 
-	const DontMatch = "z"
+	const DontMatchSingle = "z"
 	const DontMatchMid = "abcz"
 
-	tree := NewMatchTree([]MatchTreeElement{
+	elements := []MatchTreeElement{
 		{Value: SingleCharacter, Result: MatchSingleCharacter},
 		{Value: LongerString, Result: MatchLongerString},
 		{Value: SimilarString, Result: MatchSimilarString},
 		{Value: WithSpecialCharacters, Result: MatchSpecialCharacters},
-	})
+		{Value: NumberFirst, Result: MatchNumberFirst},
+	}
+
+	tree := NewMatchTree(elements)
+
+	// Expect full matches
+	for _, e := range elements {
+		t.Run(
+			"Plain Match: "+e.Value,
+			GenTreeExpectMatch(t, tree, e.Value, e.Result),
+		)
+	}
 
 	t.Run(
-		"SingleCharacter",
-		GenTreeExpectMatch(t, tree, SingleCharacter, MatchSingleCharacter),
-	)
-	t.Run(
-		"LongerString",
-		GenTreeExpectMatch(t, tree, LongerString, MatchLongerString),
-	)
-	t.Run(
-		"SimilarString",
-		GenTreeExpectMatch(t, tree, SimilarString, MatchSimilarString),
-	)
-	t.Run(
-		"WithSpecialCharacters",
-		GenTreeExpectMatch(t, tree, WithSpecialCharacters, MatchSpecialCharacters),
-	)
-	t.Run(
 		"DontMatchSingleCharacter",
-		GenTreeDontExpectMatch(t, tree, DontMatch),
+		GenTreeDontExpectMatch(t, tree, DontMatchSingle),
 	)
+
 	t.Run(
 		"DontMatchMid",
 		GenTreeDontExpectMatch(t, tree, DontMatchMid),
 	)
+
 	t.Run("MatchOrReset", func(t *testing.T) {
 		tree.Reset()
 		if !tree.MatchOrReset('a') {
@@ -116,10 +112,11 @@ func TestMatchTree(t *testing.T) {
 		if tree.MatchOrReset('z') {
 			t.Errorf("expected no match")
 		}
-		if tree.current != tree.root {
+		if !tree.IsAtBase() {
 			t.Errorf("expected reset to root")
 		}
 	})
+
 	t.Run("CanContinueMatching", func(t *testing.T) {
 		tree.Reset()
 		if !tree.CanContinueMatching() {
@@ -131,5 +128,37 @@ func TestMatchTree(t *testing.T) {
 		if !tree.CanContinueMatching() {
 			t.Errorf("Tree should be able to match")
 		}
+	})
+
+	t.Run("WithNumericModifier", func(t *testing.T) {
+		// Any modifier ending with a 0 will fail, because the tree matches
+		// the string "0abc", and the strings in the tree take precedence
+		modifiers := []int{
+			1, 2, 3, 4, 5,
+			6, 7, 8, 9,
+			12,
+			23,
+			34235,
+			4343,
+			54,
+			873,
+		}
+
+		for _, i := range modifiers {
+			numericModifier := strconv.Itoa(i)
+			expected := i
+
+			for _, e := range elements {
+				value := numericModifier + e.Value
+				t.Run(
+					"With Numeric Modifier: "+numericModifier+e.Value,
+					GenTreeExpectMatch(t, tree, value, e.Result),
+				)
+				if tree.NumericModifier() != expected {
+					t.Errorf("expected modifier to be %d, got %d", expected, tree.NumericModifier())
+				}
+			}
+		}
+
 	})
 }

@@ -1,8 +1,13 @@
 package input
 
+import (
+	"unicode"
+)
+
 type TreeResult int
 
 const NoMatch TreeResult = -1
+const DefaultNumericModifier int = 1
 
 type node struct {
 	value    rune
@@ -11,8 +16,10 @@ type node struct {
 }
 
 type MatchTree struct {
-	root    *node
-	current *node
+	root                     *node
+	current                  *node
+	numericModifier          int
+	noCurrentNumericModifier bool
 }
 
 type MatchTreeElement struct {
@@ -24,6 +31,7 @@ func NewMatchTree(elems []MatchTreeElement) *MatchTree {
 	var tree MatchTree
 	tree.root = &node{0, make(map[rune]*node), NoMatch}
 	tree.current = tree.root
+	tree.numericModifier = DefaultNumericModifier
 	for _, elem := range elems {
 		tree.Add(elem)
 	}
@@ -49,14 +57,33 @@ func (tree *MatchTree) Add(elem MatchTreeElement) {
 
 func (tree *MatchTree) Reset() {
 	tree.current = tree.root
+	tree.numericModifier = DefaultNumericModifier
+	tree.noCurrentNumericModifier = true
+}
+
+func (tree *MatchTree) IsAtBase() bool {
+	return tree.current == tree.root
 }
 
 func (tree *MatchTree) Match(c rune) bool {
 	next, ok := tree.current.children[c]
-	if !ok {
+	if ok {
+		tree.current = next
+		return true
+	}
+
+	// Try to match a numeric modifier
+	if !tree.IsAtBase() || !unicode.IsDigit(c) {
 		return false
 	}
-	tree.current = next
+
+	asInt := int(c - '0')
+	if tree.noCurrentNumericModifier {
+		tree.numericModifier = asInt
+		tree.noCurrentNumericModifier = false
+	} else {
+		tree.numericModifier = tree.numericModifier*10 + asInt
+	}
 	return true
 }
 
@@ -70,6 +97,10 @@ func (tree *MatchTree) MatchOrReset(c rune) bool {
 
 func (tree *MatchTree) CurrentResult() TreeResult {
 	return tree.current.result
+}
+
+func (tree *MatchTree) NumericModifier() int {
+	return tree.numericModifier
 }
 
 func (tree *MatchTree) CanContinueMatching() bool {
