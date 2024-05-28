@@ -34,7 +34,7 @@ minesweeper/run: minesweeper
 	/tmp/minesweeper
 
 .PHONY: minesweeper/install
-minesweeper/install: minesweeper
+minesweeper/install: confirm minesweeper
 	cp /tmp/minesweeper $(HOME)/.local/bin/minesweeper
 
 
