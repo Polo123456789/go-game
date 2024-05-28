@@ -14,8 +14,8 @@ func RestoreStdin() {
 	exec.Command("stty", "-F", "/dev/tty", "echo").Run()
 }
 
-func Get() byte {
+func Get() rune {
 	b := [1]byte{}
 	os.Stdin.Read(b[:])
-	return b[0]
+	return rune(b[0])
 }
