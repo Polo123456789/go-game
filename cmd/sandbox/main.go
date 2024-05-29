@@ -1,60 +1,77 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/Polo123456789/go-game/pkg/trender"
-	"github.com/Polo123456789/go-game/pkg/trender/8-color-pixels"
+	"github.com/Polo123456789/go-game/pkg/trender/256-color-pixels"
 )
 
 const (
-	Width  = 80
+	Width  = 60
 	Height = 24
 )
 
 func main() {
 	os.Stdout.WriteString(trender.AnsiClearScreen)
 
-	defaultPixel := pixels.Pixel{
-		Background:   pixels.White,
-		Foreground:   pixels.Black,
-		Content:      ' ',
-		GraphicsMode: trender.Reset,
-	}
-
+	defaultPixel := pixels.NewPixel(
+		pixels.DefaultColor,
+		pixels.ColorID(4),
+		' ',
+	)
 	canvas := trender.NewCanvas(
 		Width,
 		Height,
-		&defaultPixel,
+		defaultPixel,
 	)
 
-	ballPixel := pixels.Pixel{
-		Background:   pixels.Red,
-		Foreground:   pixels.Black,
-		Content:      ' ',
-		GraphicsMode: trender.Reset,
-	}
+	ballPixel := pixels.NewPixel(
+		pixels.DefaultColor,
+		pixels.ColorID(1),
+		' ',
+	)
 
 	ballX := float64(Width / 2)
 	ballY := float64(1)
 	ballVelocity := 0.0
 
 	gravity := 0.2
+	start := time.Now()
+	time.Sleep(100 * time.Millisecond)
+
+	timeSpentSum := int64(0)
+	framesCount := 0
+	maxFrames := 10000
 
 	for {
+
 		canvas.SetPixel(
 			int(ballX),
 			int(ballY),
-			&ballPixel,
+			ballPixel,
 		)
 
-		canvas.FullRender()
+		framesCount++
+		start = time.Now()
+		canvas.Render()
+		timeSpentSum += time.Since(start).Nanoseconds()
+
+		if framesCount >= maxFrames {
+			os.Stdout.WriteString(trender.SetCursorPosition(0, 27))
+			fmt.Printf("Frames Count: %v\n", framesCount)
+			fmt.Printf("Average TimeSpent on Render: %v", timeSpentSum/int64(maxFrames))
+			return
+		}
+
+		start = time.Now()
 
 		canvas.SetPixel(
 			int(ballX),
 			int(ballY),
-			&defaultPixel,
+			defaultPixel,
 		)
 
 		ballY += ballVelocity
@@ -69,7 +86,5 @@ func main() {
 			ballY = Height - 1
 			ballVelocity = -ballVelocity * 0.8
 		}
-
-		time.Sleep(36 * time.Millisecond)
 	}
 }
