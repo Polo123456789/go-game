@@ -39,12 +39,10 @@ func main() {
 	ballVelocity := 0.0
 
 	gravity := 0.2
-	start := time.Now()
-	time.Sleep(100 * time.Millisecond)
 
 	timeSpentSum := int64(0)
 	framesCount := 0
-	maxFrames := 10000
+	maxFrames := 1000
 
 	for {
 
@@ -55,9 +53,9 @@ func main() {
 		)
 
 		framesCount++
-		start = time.Now()
-		canvas.Render()
-		timeSpentSum += time.Since(start).Nanoseconds()
+		start := time.Now()
+		canvas.FullRender()
+		timeSpentSum += time.Since(start).Milliseconds()
 
 		if framesCount >= maxFrames {
 			os.Stdout.WriteString(trender.SetCursorPosition(0, 27))

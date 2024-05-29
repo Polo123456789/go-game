@@ -1,12 +1,10 @@
 package trender
 
-// Because all "pixels" are just ascii characters, to make them look more
-// squared I will use 3 characters for each pixel.
-
-const VisualPixelWidth = 3
-
 type Pixel interface {
+	// ToAnsiEscapeCode should be deterministic, as it might be used in the
+	// future to generate a cache, or to compare pixels in a double buffer
 	ToAnsiEscapeCode() string
+
 	SetGraphicsMode(mode GraphicsMode)
 	SetContent(c rune)
 }

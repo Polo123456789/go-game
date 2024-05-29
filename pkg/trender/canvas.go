@@ -77,7 +77,7 @@ func (c *Canvas) PreRender(channel chan bool) {
 	for y, row := range c.pixels {
 		for x, pixel := range row {
 			if pixel.Changed {
-				c.buffer += SetCursorPosition(x*VisualPixelWidth, y)
+				c.buffer += SetCursorPosition(x, y)
 				c.buffer += pixel.Pixel.ToAnsiEscapeCode()
 				c.pixels[y][x].Changed = false
 			}

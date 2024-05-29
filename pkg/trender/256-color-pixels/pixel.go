@@ -29,9 +29,8 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 	out := ""
 	out += "\x1b[38;5;" + strconv.Itoa(int(p.Foreground)) + "m"
 	out += "\x1b[48;5;" + strconv.Itoa(int(p.Background)) + "m"
-	content := string(p.Content)
-
-	return out + " " + content + " "
+	out += string(p.Content)
+	return out
 }
 
 func (p *Pixel) SetContent(c rune) {
