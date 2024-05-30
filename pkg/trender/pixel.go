@@ -5,6 +5,5 @@ type Pixel interface {
 	// future to generate a cache, or to compare pixels in a double buffer
 	ToAnsiEscapeCode() string
 
-	SetGraphicsMode(mode GraphicsMode)
 	SetContent(c rune)
 }

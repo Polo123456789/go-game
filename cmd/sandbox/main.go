@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Polo123456789/go-game/pkg/trender"
+	// "github.com/Polo123456789/go-game/pkg/trender/rgb-true-color-pixels"
 	"github.com/Polo123456789/go-game/pkg/trender/rgb-true-color-pixels"
 )
 

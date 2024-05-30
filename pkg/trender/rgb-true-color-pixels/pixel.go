@@ -2,8 +2,6 @@ package pixels
 
 import (
 	"fmt"
-
-	"github.com/Polo123456789/go-game/pkg/trender"
 )
 
 type RGB struct {
@@ -33,5 +31,3 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 func (p *Pixel) SetContent(c rune) {
 	p.Content = c
 }
-
-func (p *Pixel) SetGraphicsMode(_ trender.GraphicsMode) {}

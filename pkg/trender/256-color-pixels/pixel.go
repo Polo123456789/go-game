@@ -1,7 +1,6 @@
 package pixels
 
 import (
-	"github.com/Polo123456789/go-game/pkg/trender"
 	"strconv"
 )
 
@@ -34,5 +33,3 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 func (p *Pixel) SetContent(c rune) {
 	p.Content = c
 }
-
-func (p *Pixel) SetGraphicsMode(_ trender.GraphicsMode) {}
