@@ -1,21 +1,22 @@
 package pixels
 
 import (
+	"fmt"
+
 	"github.com/Polo123456789/go-game/pkg/trender"
-	"strconv"
 )
 
-type ColorID uint16
-
-const DefaultColor ColorID = 256 // Valid ids are 0-255
+type RGB struct {
+	R, G, B uint16
+}
 
 type Pixel struct {
-	Foreground ColorID
-	Background ColorID
+	Foreground RGB
+	Background RGB
 	Content    rune
 }
 
-func NewPixel(foreground, background ColorID, content rune) *Pixel {
+func NewPixel(foreground, background RGB, content rune) *Pixel {
 	return &Pixel{
 		Foreground: foreground,
 		Background: background,
@@ -24,11 +25,9 @@ func NewPixel(foreground, background ColorID, content rune) *Pixel {
 }
 
 func (p *Pixel) ToAnsiEscapeCode() string {
-	out := ""
-	out += "\x1b[38;5;" + strconv.Itoa(int(p.Foreground)) + "m"
-	out += "\x1b[48;5;" + strconv.Itoa(int(p.Background)) + "m"
-	out += string(p.Content)
-	return out
+	out := fmt.Sprintf("\x1b[38;2;%d;%d;%dm", p.Foreground.R, p.Foreground.G, p.Foreground.B)
+	out += fmt.Sprintf("\x1b[48;2;%d;%d;%dm", p.Background.R, p.Background.G, p.Background.B)
+	return out + string(p.Content)
 }
 
 func (p *Pixel) SetContent(c rune) {

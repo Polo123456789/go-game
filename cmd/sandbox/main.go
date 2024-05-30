@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/Polo123456789/go-game/pkg/trender"
-	"github.com/Polo123456789/go-game/pkg/trender/256-color-pixels"
+	"github.com/Polo123456789/go-game/pkg/trender/rgb-true-color-pixels"
 )
 
 const (
@@ -18,8 +18,16 @@ func main() {
 	os.Stdout.WriteString(trender.AnsiClearScreen)
 
 	defaultPixel := pixels.NewPixel(
-		pixels.DefaultColor,
-		pixels.ColorID(4),
+		pixels.RGB{
+			R: 0,
+			G: 0,
+			B: 0,
+		},
+		pixels.RGB{
+			R: 0xff,
+			G: 0xff,
+			B: 0xff,
+		},
 		' ',
 	)
 	canvas := trender.NewCanvas(
@@ -29,8 +37,16 @@ func main() {
 	)
 
 	ballPixel := pixels.NewPixel(
-		pixels.DefaultColor,
-		pixels.ColorID(1),
+		pixels.RGB{
+			R: 0,
+			G: 0,
+			B: 0,
+		},
+		pixels.RGB{
+			R: 41,
+			G: 205,
+			B: 217,
+		},
 		' ',
 	)
 
