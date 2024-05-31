@@ -122,8 +122,9 @@ func run(ctx context.Context, args []string) error {
 		spent := time.Since(start)
 		frameCount++
 		renderTimeSum += spent
-		s.Canvas.RenderFull()
+		s.Canvas.RenderChanged()
 		os.Stdout.WriteString(trender.SetCursorPosition(0, s.Canvas.Height()+1))
+		fmt.Printf("Framerate: %v\n", 1/spent.Seconds())
 		start = time.Now()
 	}
 
