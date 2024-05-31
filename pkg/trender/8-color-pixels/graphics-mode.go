@@ -1,4 +1,4 @@
-package trender
+package pixels
 
 type GraphicsMode uint8
 

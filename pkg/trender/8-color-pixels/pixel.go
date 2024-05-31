@@ -1,7 +1,6 @@
 package pixels
 
 import (
-	"github.com/Polo123456789/go-game/pkg/trender"
 	"strconv"
 )
 
@@ -17,22 +16,27 @@ const (
 	Cyan
 	White
 	Default
-	Reset
+	ResetColor
 )
 
 type Pixel struct {
 	Foreground Color
 	Background Color
 	Content    rune
-	trender.GraphicsMode
+	GraphicsMode
 }
 
-func NewPixel(foreground, background Color, content rune) *Pixel {
+func NewPixel(
+	foreground Color,
+	background Color,
+	graphicsMode GraphicsMode,
+	content rune,
+) *Pixel {
 	return &Pixel{
 		Foreground:   foreground,
 		Background:   background,
 		Content:      content,
-		GraphicsMode: trender.Reset,
+		GraphicsMode: graphicsMode,
 	}
 }
 
@@ -43,20 +47,18 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 	return "\x1b[" + m + ";" + f + ";" + b + "m" + string(p.Content)
 }
 
-func (p *Pixel) SetGraphicsMode(mode trender.GraphicsMode) {
-	p.GraphicsMode = mode
-}
-
 func (p *Pixel) SetContent(c rune) {
 	p.Content = c
 }
 
 func (p *Pixel) MaxPossibleSize() int {
-	// TODO: Implement
-	panic("not implemented")
+	const longestPossible = "\x1b[9;30;40m"
+	return len(longestPossible) + 1
 }
 
 func (p *Pixel) HashKey() uint64 {
-	// TODO: Implement
-	panic("not implemented")
+	return uint64(p.Foreground) |
+		uint64(p.Background)<<8 |
+		uint64(p.GraphicsMode)<<16 |
+		uint64(p.Content)<<24
 }

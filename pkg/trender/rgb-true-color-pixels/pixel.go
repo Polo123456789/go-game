@@ -34,13 +34,15 @@ func (p *Pixel) SetContent(c rune) {
 
 func (p *Pixel) MaxPossibleSize() int {
 	const longestPossible = "\x1b[48;2;255;255;255m"
-	// Foreground + Backgound + Content
 	return len(longestPossible)*2 + 1
 }
 
 func (p *Pixel) HashKey() uint64 {
-	// TODO: Fix
-	return uint64(p.Foreground.R)<<16 | uint64(p.Foreground.G)<<8 | uint64(p.Foreground.B)<<0 |
-		uint64(p.Background.R)<<24 | uint64(p.Background.G)<<16 | uint64(p.Background.B)<<8 |
-		uint64(p.Content)
+	return uint64(p.Foreground.R) |
+		uint64(p.Foreground.G)<<8 |
+		uint64(p.Foreground.B)<<16 |
+		uint64(p.Background.R)<<24 |
+		uint64(p.Background.G)<<32 |
+		uint64(p.Background.B)<<40 |
+		uint64(p.Content)<<48
 }

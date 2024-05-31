@@ -33,11 +33,12 @@ func (p *Pixel) SetContent(c rune) {
 }
 
 func (p *Pixel) MaxPossibleSize() int {
-	// TODO: Implement
-	panic("not implemented")
+	const longestPossible = "\x1b[48;5;255m"
+	return len(longestPossible)*2 + 1
 }
 
 func (p *Pixel) HashKey() uint64 {
-	// TODO: Implement
-	panic("not implemented")
+	return uint64(p.Foreground) |
+		uint64(p.Background)<<8 |
+		uint64(p.Content)<<16
 }
