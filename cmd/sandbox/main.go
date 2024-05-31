@@ -3,19 +3,32 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/Polo123456789/go-game/pkg/trender"
-	// "github.com/Polo123456789/go-game/pkg/trender/rgb-true-color-pixels"
 	"github.com/Polo123456789/go-game/pkg/trender/rgb-true-color-pixels"
 )
 
 const (
-	Width  = 60
-	Height = 24
+	Width  = 180
+	Height = 60
 )
 
-func main() {
+func run() error {
+	cpuProfileFile, err := os.Create("cpu.prof")
+	if err != nil {
+		return err
+	}
+	pprof.StartCPUProfile(cpuProfileFile)
+	defer pprof.StopCPUProfile()
+
+	memProfileFile, err := os.Create("mem.prof")
+	if err != nil {
+		return err
+	}
+	defer pprof.WriteHeapProfile(memProfileFile)
+
 	os.Stdout.WriteString(trender.AnsiClearScreen)
 
 	defaultPixel := pixels.NewPixel(
@@ -71,17 +84,15 @@ func main() {
 
 		framesCount++
 		start := time.Now()
-		canvas.FullRender()
+		canvas.RenderFull()
 		timeSpentSum += time.Since(start).Milliseconds()
 
 		if framesCount >= maxFrames {
 			os.Stdout.WriteString(trender.SetCursorPosition(0, 27))
 			fmt.Printf("Frames Count: %v\n", framesCount)
 			fmt.Printf("Average TimeSpent on Render: %v", timeSpentSum/int64(maxFrames))
-			return
+			return nil
 		}
-
-		start = time.Now()
 
 		canvas.SetPixel(
 			int(ballX),
@@ -101,5 +112,12 @@ func main() {
 			ballY = Height - 1
 			ballVelocity = -ballVelocity * 0.8
 		}
+	}
+}
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
 	}
 }

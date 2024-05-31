@@ -4,9 +4,7 @@ import (
 	"strconv"
 )
 
-type ColorID uint16
-
-const DefaultColor ColorID = 256 // Valid ids are 0-255
+type ColorID uint8
 
 type Pixel struct {
 	Foreground ColorID
@@ -32,4 +30,14 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 
 func (p *Pixel) SetContent(c rune) {
 	p.Content = c
+}
+
+func (p *Pixel) MaxPossibleSize() int {
+	// TODO: Implement
+	panic("not implemented")
+}
+
+func (p *Pixel) HashKey() uint64 {
+	// TODO: Implement
+	panic("not implemented")
 }

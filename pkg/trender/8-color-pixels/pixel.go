@@ -50,3 +50,13 @@ func (p *Pixel) SetGraphicsMode(mode trender.GraphicsMode) {
 func (p *Pixel) SetContent(c rune) {
 	p.Content = c
 }
+
+func (p *Pixel) MaxPossibleSize() int {
+	// TODO: Implement
+	panic("not implemented")
+}
+
+func (p *Pixel) HashKey() uint64 {
+	// TODO: Implement
+	panic("not implemented")
+}

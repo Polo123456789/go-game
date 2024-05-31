@@ -12,11 +12,12 @@ type canvasPixel struct {
 
 type Canvas struct {
 	// Indexed by [y][x]
-	pixels [][]canvasPixel
-	width  int
-	height int
-	buffer string
-	writer io.Writer
+	pixels    [][]canvasPixel
+	width     int
+	height    int
+	buffer    []byte
+	ansiCache map[uint64]string
+	writer    io.Writer
 }
 
 func (c *Canvas) Width() int {
@@ -36,10 +37,12 @@ func NewCanvas(width, height int, defaultPixel Pixel) *Canvas {
 		}
 	}
 	return &Canvas{
-		width:  width,
-		height: height,
-		pixels: pixels,
-		writer: os.Stdout,
+		width:     width,
+		height:    height,
+		pixels:    pixels,
+		writer:    os.Stdout,
+		buffer:    make([]byte, 0, defaultPixel.MaxPossibleSize()*width*height),
+		ansiCache: make(map[uint64]string),
 	}
 }
 
@@ -51,74 +54,48 @@ func (c *Canvas) SetPixel(x, y int, pixel Pixel) {
 	c.pixels[y][x] = canvasPixel{Pixel: pixel, Changed: true}
 }
 
-// PreRender fills the canvas buffer with all the pixels that have changed
-// since the last render.
-//
-// Its mean to be used in a separate goroutine to avoid blocking the main
-// thread. You can pass in nil to the channel if you wish to run it
-// syncronously.
-//
-// Example:
-//
-// ```go
-//
-//	canvas := trender.NewCanvas(...)
-//	// Setup the pixels
-//	preRenderChannel := make(chan bool)
-//	go canvas.PreRender(preRenderChannel)
-//
-//	// Other things that need to be done
-//
-//	<-preRenderChannel
-//	canvas.Render()
-//
-// ```
-func (c *Canvas) PreRender(channel chan bool) {
+func (c *Canvas) bufferAppend(s string) {
+	c.buffer = append(c.buffer, s...)
+}
+
+func (c *Canvas) bufferReset() {
+	c.buffer = c.buffer[:0]
+}
+
+func (c *Canvas) getAnsiRepresentation(p Pixel) string {
+	cached, ok := c.ansiCache[p.HashKey()]
+	if ok {
+		return cached
+	}
+
+	ansi := p.ToAnsiEscapeCode()
+	c.ansiCache[p.HashKey()] = ansi
+	return ansi
+}
+
+func (c *Canvas) RenderChanged() {
+	c.bufferReset()
 	for y, row := range c.pixels {
 		for x, pixel := range row {
 			if pixel.Changed {
-				c.buffer += SetCursorPosition(x, y)
-				c.buffer += pixel.Pixel.ToAnsiEscapeCode()
+				c.bufferAppend(SetCursorPosition(x, y))
+				c.bufferAppend(c.getAnsiRepresentation(pixel.Pixel))
 				c.pixels[y][x].Changed = false
 			}
 		}
 	}
-	if channel != nil {
-		channel <- true
-	}
+	c.writer.Write(c.buffer)
 }
 
-// Render writes the canvas buffer to the writer.
-func (c *Canvas) Render() {
-	if c.buffer == "" {
-		c.PreRender(nil)
-	}
-	c.writer.Write([]byte(c.buffer))
-	c.buffer = ""
-}
-
-// FullPrerender does the same thing as PreRender, but ignores if there was a
-// change to a pixel or not
-func (c *Canvas) FullPrerender(channel chan bool) {
-	c.buffer = SetCursorPosition(0, 0)
+func (c *Canvas) RenderFull() {
+	c.bufferReset()
+	c.bufferAppend(SetCursorPosition(0, 0))
 	for y, row := range c.pixels {
 		for x, pixel := range row {
-			c.buffer += pixel.Pixel.ToAnsiEscapeCode()
+			c.bufferAppend(c.getAnsiRepresentation(pixel.Pixel))
 			c.pixels[y][x].Changed = false
 		}
-		c.buffer += SetCursorPosition(0, y+1)
+		c.bufferAppend(SetCursorPosition(0, y+1))
 	}
-	if channel != nil {
-		channel <- true
-	}
-}
-
-// FullRender does the same thing as Render, but ignores if there was a change
-// to a pixel or not
-func (c *Canvas) FullRender() {
-	if c.buffer == "" {
-		c.FullPrerender(nil)
-	}
-	c.writer.Write([]byte(c.buffer))
-	c.buffer = ""
+	c.writer.Write(c.buffer)
 }

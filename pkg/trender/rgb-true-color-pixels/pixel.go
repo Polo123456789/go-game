@@ -5,7 +5,7 @@ import (
 )
 
 type RGB struct {
-	R, G, B uint16
+	R, G, B uint8
 }
 
 type Pixel struct {
@@ -30,4 +30,17 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 
 func (p *Pixel) SetContent(c rune) {
 	p.Content = c
+}
+
+func (p *Pixel) MaxPossibleSize() int {
+	const longestPossible = "\x1b[48;2;255;255;255m"
+	// Foreground + Backgound + Content
+	return len(longestPossible)*2 + 1
+}
+
+func (p *Pixel) HashKey() uint64 {
+	// TODO: Fix
+	return uint64(p.Foreground.R)<<16 | uint64(p.Foreground.G)<<8 | uint64(p.Foreground.B)<<0 |
+		uint64(p.Background.R)<<24 | uint64(p.Background.G)<<16 | uint64(p.Background.B)<<8 |
+		uint64(p.Content)
 }
