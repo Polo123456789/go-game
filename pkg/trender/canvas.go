@@ -3,6 +3,11 @@ package trender
 import (
 	"io"
 	"os"
+	"strconv"
+)
+
+const (
+	AnsiClearScreen = "\x1b[2J\x1b[H"
 )
 
 type canvasPixel struct {
@@ -73,12 +78,24 @@ func (c *Canvas) getAnsiRepresentation(p Pixel) string {
 	return ansi
 }
 
+func (c *Canvas) setCursorPosition(x, y int) {
+	c.bufferAppend("\x1b[")
+	c.bufferAppend(strconv.Itoa(y))
+	c.bufferAppend(";")
+	c.bufferAppend(strconv.Itoa(x))
+	c.bufferAppend("H")
+}
+
+// func SetCursorPosition(x, y int) string {
+// 	return "\x1b[" + strconv.Itoa(y) + ";" + strconv.Itoa(x) + "H"
+// }
+
 func (c *Canvas) RenderChanged() {
 	c.bufferReset()
 	for y, row := range c.pixels {
 		for x, pixel := range row {
 			if pixel.Changed {
-				c.bufferAppend(SetCursorPosition(x, y))
+				c.setCursorPosition(x, y)
 				c.bufferAppend(c.getAnsiRepresentation(pixel.Pixel))
 				c.pixels[y][x].Changed = false
 			}
@@ -89,13 +106,13 @@ func (c *Canvas) RenderChanged() {
 
 func (c *Canvas) RenderFull() {
 	c.bufferReset()
-	c.bufferAppend(SetCursorPosition(0, 0))
+	c.setCursorPosition(0, 0)
 	for y, row := range c.pixels {
 		for x, pixel := range row {
 			c.bufferAppend(c.getAnsiRepresentation(pixel.Pixel))
 			c.pixels[y][x].Changed = false
 		}
-		c.bufferAppend(SetCursorPosition(0, y+1))
+		c.setCursorPosition(0, y+1)
 	}
 	c.writer.Write(c.buffer)
 }

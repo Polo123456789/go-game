@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"time"
 
 	"github.com/Polo123456789/go-game/pkg/trender"
@@ -84,7 +85,7 @@ func (s *Simulation) UpdateParticles() {
 	}
 }
 
-func run(ctx context.Context, args []string) error {
+func runSimulation(ctx context.Context, args []string) error {
 	flags := flag.NewFlagSet("game", flag.ExitOnError)
 	width := flags.Int("width", 450, "Width of the canvas")
 	height := flags.Int("height", 80, "Height of the canvas")
@@ -123,12 +124,9 @@ func run(ctx context.Context, args []string) error {
 		frameCount++
 		renderTimeSum += spent
 		s.Canvas.RenderChanged()
-		os.Stdout.WriteString(trender.SetCursorPosition(0, s.Canvas.Height()+1))
-		fmt.Printf("Framerate: %v\n", 1/spent.Seconds())
 		start = time.Now()
 	}
 
-	os.Stdout.WriteString(trender.SetCursorPosition(0, s.Canvas.Height()+1))
 	fmt.Printf("Frames rendered: %d\n", frameCount)
 	fmt.Printf("Average render time: %v\n", renderTimeSum/time.Duration(frameCount))
 	fmt.Printf("Simulation time: %v\n", time.Since(simStart))
@@ -137,7 +135,7 @@ func run(ctx context.Context, args []string) error {
 }
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
 	sigchan := make(chan os.Signal, 1)
@@ -147,7 +145,22 @@ func main() {
 		cancel()
 	}()
 
-	if err := run(ctx, os.Args); err != nil {
+	cpuFile, err := os.Create("cpu.prof")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	pprof.StartCPUProfile(cpuFile)
+	defer pprof.StopCPUProfile()
+
+	memFile, err := os.Create("mem.prof")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer pprof.WriteHeapProfile(memFile)
+
+	if err := runSimulation(ctx, os.Args); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
