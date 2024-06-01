@@ -87,14 +87,18 @@ func (s *Simulation) UpdateParticles() {
 
 func runSimulation(ctx context.Context, args []string) error {
 	flags := flag.NewFlagSet("game", flag.ExitOnError)
-	width := flags.Int("width", 450, "Width of the canvas")
-	height := flags.Int("height", 80, "Height of the canvas")
 	particleCount := flags.Int("particles", 1000, "Number of particles")
 	elasticity := flags.Float64("elasticity", 0.9, "Elasticity of the particles")
 	flags.Parse(args[1:])
 
+	size, err := trender.GetTermSize()
+	if err != nil {
+		return err
+	}
+
 	s := NewSimulation(
-		*width, *height,
+		size.Width,
+		size.Height,
 		*elasticity,
 		*particleCount,
 		pixels.NewPixel(
@@ -135,7 +139,7 @@ func runSimulation(ctx context.Context, args []string) error {
 }
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	sigchan := make(chan os.Signal, 1)
