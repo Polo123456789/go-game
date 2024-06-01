@@ -10,6 +10,10 @@ const (
 	AnsiClearScreen = "\x1b[2J\x1b[H"
 )
 
+func ClearScreen() {
+	os.Stdout.Write([]byte(AnsiClearScreen))
+}
+
 type canvasPixel struct {
 	Pixel   Pixel
 	Changed bool
@@ -56,6 +60,18 @@ func (c *Canvas) SetWriter(writer io.Writer) {
 }
 
 func (c *Canvas) SetPixel(x, y int, pixel Pixel) {
+	if x < 0 {
+		x = 0
+	}
+	if x >= c.width {
+		x = c.width - 1
+	}
+	if y < 0 {
+		y = 0
+	}
+	if y >= c.height {
+		y = c.height - 1
+	}
 	c.pixels[y][x] = canvasPixel{Pixel: pixel, Changed: true}
 }
 
@@ -80,15 +96,11 @@ func (c *Canvas) getAnsiRepresentation(p Pixel) string {
 
 func (c *Canvas) setCursorPosition(x, y int) {
 	c.bufferAppend("\x1b[")
-	c.bufferAppend(strconv.Itoa(y))
+	c.bufferAppend(strconv.Itoa(y + 1))
 	c.bufferAppend(";")
-	c.bufferAppend(strconv.Itoa(x))
+	c.bufferAppend(strconv.Itoa(x + 1))
 	c.bufferAppend("H")
 }
-
-// func SetCursorPosition(x, y int) string {
-// 	return "\x1b[" + strconv.Itoa(y) + ";" + strconv.Itoa(x) + "H"
-// }
 
 func (c *Canvas) RenderChanged() {
 	c.bufferReset()
@@ -115,4 +127,22 @@ func (c *Canvas) RenderFull() {
 		c.setCursorPosition(0, y+1)
 	}
 	c.writer.Write(c.buffer)
+}
+
+func (c *Canvas) Clear(p Pixel) {
+	for y, row := range c.pixels {
+		for x := range row {
+			if c.pixels[y][x].Pixel.HashKey() != p.HashKey() {
+				c.SetPixel(x, y, p)
+			}
+		}
+	}
+}
+
+func (c *Canvas) DrawRect(r Rect, p Pixel) {
+	panic("Not Implemented")
+}
+
+func (c *Canvas) DrawRectFill(r Rect, p Pixel) {
+	panic("Not Implemented")
 }

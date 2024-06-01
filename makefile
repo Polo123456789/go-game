@@ -20,23 +20,10 @@ no-dirty:
 # Applications
 # ==================================================================================== #
 
-## run sandbox
+## run: run sandbox
 .PHONY: run
 run:
 	go run ./cmd/sandbox
-
-.PHONY: minesweeper
-minesweeper:
-	go build -o /tmp/minesweeper ./cmd/minesweeper
-
-.PHONY: minesweeper/run
-minesweeper/run: minesweeper
-	/tmp/minesweeper
-
-.PHONY: minesweeper/install
-minesweeper/install: confirm minesweeper
-	cp /tmp/minesweeper $(HOME)/.local/bin/minesweeper
-
 
 # ==================================================================================== #
 # QUALITY CONTROL

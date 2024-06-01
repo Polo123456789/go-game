@@ -1,6 +1,7 @@
 package input
 
 import (
+	"context"
 	"os"
 	"os/exec"
 )
@@ -18,4 +19,15 @@ func Get() rune {
 	b := [1]byte{}
 	os.Stdin.Read(b[:])
 	return rune(b[0])
+}
+
+func BackgroundGet(ctx context.Context, ch chan rune) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			ch <- Get()
+		}
+	}
 }
