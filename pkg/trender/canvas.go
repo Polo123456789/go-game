@@ -21,12 +21,13 @@ type canvasPixel struct {
 
 type Canvas struct {
 	// Indexed by [y][x]
-	pixels    [][]canvasPixel
-	width     int
-	height    int
-	buffer    []byte
-	ansiCache map[uint64]string
-	writer    io.Writer
+	pixels          [][]canvasPixel
+	width           int
+	height          int
+	buffer          []byte
+	ansiCache       map[uint64]string
+	cursorPositions [][][]byte
+	writer          io.Writer
 }
 
 func (c *Canvas) Width() int {
@@ -39,19 +40,23 @@ func (c *Canvas) Height() int {
 
 func NewCanvas(width, height int, defaultPixel Pixel) *Canvas {
 	pixels := make([][]canvasPixel, height)
+	cursorPositions := make([][][]byte, height)
 	for y := 0; y < height; y++ {
 		pixels[y] = make([]canvasPixel, width)
+		cursorPositions[y] = make([][]byte, width)
 		for x := 0; x < width; x++ {
 			pixels[y][x] = canvasPixel{Pixel: defaultPixel, Changed: true}
+			cursorPositions[y][x] = []byte("\x1b[" + strconv.Itoa(y+1) + ";" + strconv.Itoa(x+1) + "H")
 		}
 	}
 	return &Canvas{
-		width:     width,
-		height:    height,
-		pixels:    pixels,
-		writer:    os.Stdout,
-		buffer:    make([]byte, 0, defaultPixel.MaxPossibleSize()*width*height),
-		ansiCache: make(map[uint64]string),
+		width:           width,
+		height:          height,
+		pixels:          pixels,
+		writer:          os.Stdout,
+		buffer:          make([]byte, 0, defaultPixel.MaxPossibleSize()*width*height),
+		cursorPositions: cursorPositions,
+		ansiCache:       make(map[uint64]string),
 	}
 }
 
@@ -95,11 +100,7 @@ func (c *Canvas) getAnsiRepresentation(p Pixel) string {
 }
 
 func (c *Canvas) setCursorPosition(x, y int) {
-	c.bufferAppend("\x1b[")
-	c.bufferAppend(strconv.Itoa(y + 1))
-	c.bufferAppend(";")
-	c.bufferAppend(strconv.Itoa(x + 1))
-	c.bufferAppend("H")
+	c.buffer = append(c.buffer, c.cursorPositions[y][x]...)
 }
 
 func (c *Canvas) RenderChanged() {
