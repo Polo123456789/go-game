@@ -125,7 +125,9 @@ func (c *Canvas) RenderFull() {
 			c.bufferAppend(c.getAnsiRepresentation(pixel.Pixel))
 			c.pixels[y][x].Changed = false
 		}
-		c.setCursorPosition(0, y+1)
+		if y < c.height-1 {
+			c.setCursorPosition(0, y+1)
+		}
 	}
 	c.writer.Write(c.buffer)
 }
@@ -138,12 +140,4 @@ func (c *Canvas) Clear(p Pixel) {
 			}
 		}
 	}
-}
-
-func (c *Canvas) DrawRect(r Rect, p Pixel) {
-	panic("Not Implemented")
-}
-
-func (c *Canvas) DrawRectFill(r Rect, p Pixel) {
-	panic("Not Implemented")
 }
