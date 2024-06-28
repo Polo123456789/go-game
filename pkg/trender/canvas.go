@@ -71,19 +71,6 @@ func (c *Canvas) SetWriter(writer io.Writer) {
 }
 
 func (c *Canvas) SetPixel(x, y int, pixel Pixel) {
-	if x < 0 {
-		x = 0
-	}
-	if x >= c.width {
-		x = c.width - 1
-	}
-	if y < 0 {
-		y = 0
-	}
-	if y >= c.height {
-		y = c.height - 1
-	}
-
 	p := &c.pixels[y][x]
 	if p.Pixel.HashKey() == pixel.HashKey() {
 		return
