@@ -11,13 +11,22 @@ type Line struct {
 }
 
 func (c *Canvas) DrawLine(l Line, p Pixel) {
-	l.P1.X = math.Ceil(l.P1.X)
-	l.P1.Y = math.Ceil(l.P1.Y)
-	l.P2.X = math.Ceil(l.P2.X)
-	l.P2.Y = math.Ceil(l.P2.Y)
+	l.P1.X = math.Floor(l.P1.X)
+	l.P1.Y = math.Floor(l.P1.Y)
+	l.P2.X = math.Floor(l.P2.X)
+	l.P2.Y = math.Floor(l.P2.Y)
 
 	dx := math.Abs(float64(l.P2.X - l.P1.X))
 	dy := math.Abs(float64(l.P2.Y - l.P1.Y))
+
+	// Fast cases
+	if dx == 0 {
+		c.drawVerticalLine(l, p)
+		return
+	} else if dy == 0 {
+		c.drawHorizontalLine(l, p)
+		return
+	}
 
 	var sx, sy float64
 	if l.P1.X < l.P2.X {
@@ -49,5 +58,23 @@ func (c *Canvas) DrawLine(l Line, p Pixel) {
 			err += dx
 			y += sy
 		}
+	}
+}
+
+func (c *Canvas) drawHorizontalLine(l Line, p Pixel) {
+	if l.P1.X > l.P2.X {
+		l.P1, l.P2 = l.P2, l.P1
+	}
+	for x := l.P1.X; x <= l.P2.X; x++ {
+		c.SetPixel(int(x), int(l.P1.Y), p)
+	}
+}
+
+func (c *Canvas) drawVerticalLine(l Line, p Pixel) {
+	if l.P1.Y > l.P2.Y {
+		l.P1, l.P2 = l.P2, l.P1
+	}
+	for y := l.P1.Y; y <= l.P2.Y; y++ {
+		c.SetPixel(int(l.P1.X), int(y), p)
 	}
 }
