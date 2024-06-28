@@ -46,7 +46,13 @@ func NewCanvas(width, height int, defaultPixel Pixel) *Canvas {
 		cursorPositions[y] = make([][]byte, width)
 		for x := 0; x < width; x++ {
 			pixels[y][x] = canvasPixel{Pixel: defaultPixel, Changed: true}
-			cursorPositions[y][x] = []byte("\x1b[" + strconv.Itoa(y+1) + ";" + strconv.Itoa(x+1) + "H")
+			cursorPositions[y][x] = []byte(
+				"\x1b[" +
+					strconv.Itoa(y+1) +
+					";" +
+					strconv.Itoa((x*PixelWidth)+1) +
+					"H",
+			)
 		}
 	}
 	return &Canvas{

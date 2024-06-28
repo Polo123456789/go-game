@@ -26,5 +26,10 @@ func GetTermSize() (TermSize, error) {
 	if n != 2 {
 		return TermSize{}, fmt.Errorf("expected 2 values, got %d", n)
 	}
+	if ts.Width%2 != 0 {
+		ts.Width--
+	}
+	ts.Width = ts.Width / 2
+	ts.Height = ts.Height
 	return ts, nil
 }

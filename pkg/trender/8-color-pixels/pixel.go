@@ -44,7 +44,7 @@ func (p *Pixel) ToAnsiEscapeCode() string {
 	f := strconv.Itoa(int(30 + p.Foreground))
 	b := strconv.Itoa(int(40 + p.Background))
 	m := strconv.Itoa(int(p.GraphicsMode))
-	return "\x1b[" + m + ";" + f + ";" + b + "m" + string(p.Content)
+	return "\x1b[" + m + ";" + f + ";" + b + "m" + string(p.Content) + string(p.Content)
 }
 
 func (p *Pixel) SetContent(c rune) {
@@ -53,7 +53,7 @@ func (p *Pixel) SetContent(c rune) {
 
 func (p *Pixel) MaxPossibleSize() int {
 	const longestPossible = "\x1b[9;30;40m"
-	return len(longestPossible) + 1
+	return len(longestPossible) + 2
 }
 
 func (p *Pixel) HashKey() uint64 {

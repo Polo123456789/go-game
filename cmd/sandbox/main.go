@@ -24,38 +24,29 @@ func run(ctx context.Context) error {
 		pixels.White,
 		pixels.White,
 		pixels.Reset,
-		' ',
+		'W',
 	)
 
 	lineForeground := pixels.NewPixel(
-		pixels.Black,
-		pixels.Black,
+		pixels.Blue,
+		pixels.Blue,
 		pixels.Reset,
-		' ',
+		'R',
 	)
 
 	fillRectForeground := pixels.NewPixel(
 		pixels.Yellow,
 		pixels.Yellow,
 		pixels.Reset,
-		' ',
+		'M',
 	)
 
 	rectForeground := pixels.NewPixel(
 		pixels.Red,
 		pixels.Red,
 		pixels.Reset,
-		' ',
+		'!',
 	)
-
-	elipseForeground := pixels.NewPixel(
-		pixels.Green,
-		pixels.Green,
-		pixels.Reset,
-		' ',
-	)
-	// TODO: Implement elipse drawing
-	_ = elipseForeground
 
 	canvas := trender.NewCanvas(
 		size.Width,
@@ -90,7 +81,7 @@ func run(ctx context.Context) error {
 			X: float64(size.Width / 2),
 			Y: float64(size.Height / 2),
 		},
-		Width:  20,
+		Width:  10,
 		Height: 10,
 	}
 	canvas.DrawRectFill(rect, fillRectForeground)
@@ -102,7 +93,7 @@ func run(ctx context.Context) error {
 				X: float64(size.Width / 2),
 				Y: float64(size.Height / 2),
 			},
-			Width:  20 + i*5,
+			Width:  10 + i*5,
 			Height: 10 + i*5,
 		}
 		canvas.DrawRect(rect, rectForeground)
