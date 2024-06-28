@@ -4,11 +4,18 @@ import (
 	"math"
 )
 
+var callID = 0
+
 type Line struct {
 	P1, P2 Position
 }
 
 func (c *Canvas) DrawLine(l Line, p Pixel) {
+	l.P1.X = math.Ceil(l.P1.X)
+	l.P1.Y = math.Ceil(l.P1.Y)
+	l.P2.X = math.Ceil(l.P2.X)
+	l.P2.Y = math.Ceil(l.P2.Y)
+
 	dx := math.Abs(float64(l.P2.X - l.P1.X))
 	dy := math.Abs(float64(l.P2.Y - l.P1.Y))
 
@@ -23,6 +30,7 @@ func (c *Canvas) DrawLine(l Line, p Pixel) {
 	} else {
 		sy = -1
 	}
+
 	err := dx - dy
 
 	x := l.P1.X
