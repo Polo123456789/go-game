@@ -77,7 +77,12 @@ func (c *Canvas) SetPixel(x, y int, pixel Pixel) {
 	if y >= c.height {
 		y = c.height - 1
 	}
-	c.pixels[y][x] = canvasPixel{Pixel: pixel, Changed: true}
+
+	p := &c.pixels[y][x]
+	if p.Pixel.HashKey() == pixel.HashKey() {
+		return
+	}
+	*p = canvasPixel{Pixel: pixel, Changed: true}
 }
 
 func (c *Canvas) bufferAppend(s string) {
